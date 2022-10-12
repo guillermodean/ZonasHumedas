@@ -2,11 +2,11 @@
   "name": "zonas-humedas",
   "version": "1.0.0",
   "description": "Aplicacion con todas las zonas humedas de navarra e informacion en fichas",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "dev": "nodemon src/index.ts",
+    "start": "node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,8 @@
     "@types/cors": "^2.8.12",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.7.23",
+    "aws-sdk": "^2.1231.0",
+    "dotenv": "^16.0.3",
     "express": "^4.18.1",
     "mongoose": "^6.6.4",
     "nodemon": "^2.0.20",

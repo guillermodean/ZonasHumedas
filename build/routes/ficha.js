@@ -8,8 +8,8 @@ class FichaRoutes {
         this.config();
     }
     config() {
-        this.router.get('/', fichaController_1.fichaController.list);
-        this.router.get('/:id', fichaController_1.fichaController.getOne);
+        this.router.get('/', fichaController_1.fichaController.getFichas);
+        this.router.get('/:id', fichaController_1.fichaController.getFicha);
         this.router.post('/', fichaController_1.fichaController.create);
         this.router.put('/:id', fichaController_1.fichaController.update);
         this.router.delete('/:id', fichaController_1.fichaController.delete);
