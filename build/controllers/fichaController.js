@@ -9,101 +9,66 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fichaController = void 0;
-const database_1 = require("c:/Users/guill/Documents/13-Proyectos/Zonas Humedas/src/database");
+exports.postItem = exports.getItems = void 0;
+const database_1 = require("../database");
 const tableName = process.env.DYNAMODB_TABLE;
-let DB = new database_1.dynamoDb().dynamoDb;
-const prueba = { "name": "guillermo", "description": "1234" };
-class FichaController {
-    getFichas(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: String(tableName),
-            };
-            DB.scan(params, (err, data) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ error: "Could not load items" });
-                }
-                res.json(data.Items);
-            });
+// get items from dynamoDB
+const getItems = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("entrando a getItems");
+    const params = {
+        TableName: "Humedales_Nav",
+    };
+    try {
+        const data = yield database_1.ddb.scan(params, function (err, data) {
+            if (err) {
+                console.log("Error", err.code);
+            }
+            else {
+                console.log("Scan :", data.Items);
+                res.json(data);
+            }
         });
     }
-    getFicha(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: String(tableName),
-                Key: {
-                    id: req.params.id,
-                },
-            };
-            DB.get(params, (err, data) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ error: "Could not load items" });
-                }
-                res.json(data.Item);
-            });
-        });
+    catch (error) {
+        console.log(error);
     }
-    create(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: String(tableName),
-                Item: {
-                    Humedales_N: "001",
-                    name: prueba.name,
-                    description: prueba.description,
-                },
-            };
-            DB.put(params, (err, data) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ error: "Could not create item" });
-                }
-                res.json({ success: "Created successfully" });
-            });
-        });
-    }
-    update(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: String(tableName),
-                Key: {
-                    id: req.params.id,
-                },
-                UpdateExpression: "set name = :n, description = :d",
-                ExpressionAttributeValues: {
-                    ":n": req.body.name,
-                    ":d": req.body.description,
-                },
-                ReturnValues: "UPDATED_NEW",
-            };
-            DB.update(params, (err, data) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ error: "Could not update item" });
-                }
-                res.json({ success: "Updated successfully" });
-            });
-        });
-    }
-    delete(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: String(tableName),
-                Key: {
-                    id: req.params.id,
-                },
-            };
-            DB.delete(params, (err, data) => {
-                if (err) {
-                    res.status(500).json({ error: "Could not delete item" });
-                }
-                res.json({ success: "Deleted successfully" });
-            });
-        });
-    }
-}
-;
-exports.fichaController = new FichaController();
+});
+exports.getItems = getItems;
+// post item to dynamoDB
+const postItem = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("entrando a postItem");
+    const params = {
+        TableName: "Humedales_Nav",
+        Item: {
+            Index: {
+                S: req.body.index,
+            },
+            Name: {
+                S: req.body.name,
+            },
+            Description: {
+                S: req.body.description,
+            },
+            Image: {
+                S: req.body.image,
+            },
+            Coordinates: {
+                S: req.body.coordinates,
+            },
+            Type: {
+                S: req.body.type,
+            },
+        },
+    };
+    yield database_1.ddb.putItem(params, function (err, data) {
+        if (err) {
+            console.log("Error", err);
+            res.status(500).json({ error: "Could not create item" });
+        }
+        else {
+            console.log("Success", data);
+            res.status(200).json({ message: "Item created" });
+        }
+    });
+});
+exports.postItem = postItem;

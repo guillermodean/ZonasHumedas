@@ -1,6 +1,7 @@
 import express, {Application } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import fichaRoutes from './routes/ficha';
 
 class Server {
     public app: Application;
@@ -20,7 +21,7 @@ class Server {
     }
 
     routes(): void {
-
+        this.app.use('/', fichaRoutes.router);
     }
 
     start(): void {
