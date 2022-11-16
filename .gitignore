@@ -1,7 +1,6 @@
 
 
 # build
-
 build
 
 # Logs
@@ -41,7 +40,7 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
+build
 
 # Dependency directories
 node_modules/
@@ -108,3 +107,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+#Documentacion
+.Documentacion

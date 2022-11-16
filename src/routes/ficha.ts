@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getItems } from "../controllers/fichaController";
 import { postItem } from "../controllers/fichaController";
+import { deleteItem } from "../controllers/fichaController";
+import { updateItem } from "../controllers/fichaController";
 
 class FichaRoutes {
     
@@ -14,8 +16,8 @@ class FichaRoutes {
             this.router.get('/', getItems);
             // this.router.get('/:id', fichaController.getFicha);
             this.router.post('/', postItem);
-            // this.router.put('/:id', fichaController.update);
-            // this.router.delete('/:id', fichaController.delete);
+            this.router.put('/:id', updateItem);
+            this.router.delete('/:id', deleteItem);
         }
     }
     const fichaRoutes = new FichaRoutes();
