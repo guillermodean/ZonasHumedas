@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { ddb } from "../database";
+import * as fichas from '../../.Documentacion/ZHNC.json';
+
 
 const tableName = process.env.DYNAMODB_TABLE;
 
@@ -10,7 +12,7 @@ const tableName = process.env.DYNAMODB_TABLE;
 export const getItems =  async (req: Request, res: Response) => {
   console.log("entrando a getItems");
   const params = {
-    TableName: "Humedales_Nav",
+    TableName: "Humedales_web",
   };
   try {
      const data = await ddb.scan(params, function(err, data) {
@@ -31,7 +33,7 @@ export const getItems =  async (req: Request, res: Response) => {
 
 export const getItem = async (req: Request, res: Response) => {
   const params = {
-    TableName: "Humedales_Nav",
+    TableName: "Humedales_web",
     Key: {
       Index: {
         S: req.params.id,
@@ -58,7 +60,7 @@ export const getItem = async (req: Request, res: Response) => {
 export const postItem = async (req: Request, res: Response) => {
   console.log("entrando a postItem");
   const params = {
-    TableName: "Humedales_Nav",
+    TableName: "Humedales_web",
     Item: {
       Index: {
         S: req.body.index,
@@ -96,7 +98,7 @@ export const postItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   console.log("entrando a deleteItem");
   const params = {
-    TableName: "Humedales_Nav",
+    TableName: "Humedales_web",
     Key: {
       Index: {
         S: req.params.id,
@@ -119,7 +121,7 @@ export const deleteItem = async (req: Request, res: Response) => {
 export const updateItem = async (req: Request, res: Response) => {
   console.log("entrando a updateItem");
   const params = {
-    TableName: "Humedales_Nav",
+    TableName: "Humedales_web",
     Key: {
       Index: {
         S: req.params.id,
@@ -155,5 +157,57 @@ export const updateItem = async (req: Request, res: Response) => {
     }
   });
 };
+export const postallItems = async (req: Request, res: Response) => {
+  console.log(fichas); 
+  // map json file and post one by one to dynamoDB
+  let n = 0
+  fichas.forEach((element) => {
+    console.log(n);
+    const params = {
+      TableName: "Humedales_web",  // me quede aqui, tengo que hacer un for each para recorrer el json y hacer un post por cada elemento 
+      Item: {
+        Index: {
+          S: String(element.Serie),
+        },
+        ACUNID_antiguo: {
+          S: element["ACUNID antiguo"],
+        },
+        Cod_antiguo: {
+          S: element["Cod antiguo"],
+        },
+        Cod_adic: {
+          S: element["Cod adic"],
+        },
+        Municipio: {
+          S: element.Municipio,
+        },
+        Paraje: {
+          S: element.Paraje
+        },
+        Rio:{
+          S: element.Río
+        },
+        Concatenacion: {
+          S: element["Concatenación 2"]
+        },
+        CoordenadaXUTC: {
+          S: String(element.X)
+        },
+        CoordenadaYUTC: {
+          S: String(element.Y)
 
 
+    }
+  }}
+      
+    ddb.putItem(params, function (err, data) {
+      if (err) {
+        console.log("Error fatal", err);
+      } else {
+        console.log("Success", data);
+      }
+    });
+    n=n+1
+  });
+
+};

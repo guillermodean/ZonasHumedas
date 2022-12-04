@@ -3,6 +3,7 @@ import { getItems } from "../controllers/fichaController";
 import { postItem } from "../controllers/fichaController";
 import { deleteItem } from "../controllers/fichaController";
 import { updateItem } from "../controllers/fichaController";
+import {postallItems} from "../controllers/fichaController";
 
 class FichaRoutes {
     
@@ -18,6 +19,7 @@ class FichaRoutes {
             this.router.post('/', postItem);
             this.router.put('/:id', updateItem);
             this.router.delete('/:id', deleteItem);
+            this.router.put('/cargar', postallItems);
         }
     }
     const fichaRoutes = new FichaRoutes();
