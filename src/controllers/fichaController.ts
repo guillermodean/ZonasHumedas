@@ -10,8 +10,9 @@ const tableName = process.env.DYNAMODB_TABLE;
 
 
 export const getItems =  async (req: Request, res: Response) => {
-  console.log("entrando a getItems");
+  console.log("entrando a lo GETITEMS");
   const params = {
+
     TableName: "Humedales_web",
   };
   try {
@@ -19,7 +20,7 @@ export const getItems =  async (req: Request, res: Response) => {
       if (err) {
         console.log("Error", err.code);
       } else {
-        console.log("Scan :", data.Items);
+        console.log("Scanned :", data.Items);
         res.json(data);
       }
     });
@@ -35,7 +36,7 @@ export const getItem = async (req: Request, res: Response) => {
   const params = {
     TableName: "Humedales_web",
     Key: {
-      Index: {
+      Serie: {
         S: req.params.id,
       },
     },

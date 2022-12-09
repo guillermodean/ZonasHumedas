@@ -34,9 +34,9 @@ const fichas = __importStar(require("../../.Documentacion/ZHNC.json"));
 const tableName = process.env.DYNAMODB_TABLE;
 // get items from dynamoDB
 const getItems = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("entrando a getItems");
+    console.log("entrando a ojete");
     const params = {
-        TableName: "Humedales_Nav",
+        TableName: "Humedales_web",
     };
     try {
         const data = yield database_1.ddb.scan(params, function (err, data) {
@@ -44,7 +44,7 @@ const getItems = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 console.log("Error", err.code);
             }
             else {
-                console.log("Scan :", data.Items);
+                console.log("Scanned :", data.Items);
                 res.json(data);
             }
         });
