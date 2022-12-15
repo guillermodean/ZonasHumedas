@@ -1,7 +1,9 @@
 import express, {Application } from 'express';
+import {Request, Response} from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import fichaRoutes from './routes/ficha';
+import usersRoutes from './routes/users';
 
 class Server {
     public app: Application;
@@ -21,7 +23,11 @@ class Server {
     }
 
     routes(): void {
-        this.app.use('/', fichaRoutes.router);
+        this.app.use('/api/users', usersRoutes.router);
+        this.app.use('/api/ficha', fichaRoutes.router);
+        this.app.use('/api', (req: Request, res: Response) => {
+            res.json({text: 'welcom to API humedales'});
+        })
     }
 
     start(): void {

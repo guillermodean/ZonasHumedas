@@ -10,10 +10,10 @@ const tableName = process.env.DYNAMODB_TABLE;
 
 
 export const getItems =  async (req: Request, res: Response) => {
-  console.log("entrando a lo GETITEMS");
+  console.log("entrando a lo GETITEMS"); 
   const params = {
 
-    TableName: "Humedales_web",
+    TableName: "Humedales",
   };
   try {
      const data = await ddb.scan(params, function(err, data) {
@@ -34,17 +34,18 @@ export const getItems =  async (req: Request, res: Response) => {
 
 export const getItem = async (req: Request, res: Response) => {
   const params = {
-    TableName: "Humedales_web",
+    TableName: "Humedales",
     Key: {
       Serie: {
-        S: req.params.id,
+        S: String(req.params.id) //
       },
     },
   };
+  console.log (params)
   try {
     const data = await ddb.getItem(params, function (err, data) {
       if (err) {
-        console.log("Error", err.code);
+        console.log("Error", err);
       } else {
         console.log("Item  : ", data.Item);
         res.json(data);
@@ -61,7 +62,7 @@ export const getItem = async (req: Request, res: Response) => {
 export const postItem = async (req: Request, res: Response) => {
   console.log("entrando a postItem");
   const params = {
-    TableName: "Humedales_web",
+    TableName: "Humedales",
     Item: {
       Index: {
         S: req.body.index,
@@ -99,7 +100,7 @@ export const postItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   console.log("entrando a deleteItem");
   const params = {
-    TableName: "Humedales_web",
+    TableName: "Humedales",
     Key: {
       Index: {
         S: req.params.id,
@@ -122,7 +123,7 @@ export const deleteItem = async (req: Request, res: Response) => {
 export const updateItem = async (req: Request, res: Response) => {
   console.log("entrando a updateItem");
   const params = {
-    TableName: "Humedales_web",
+    TableName: "Humedales",
     Key: {
       Index: {
         S: req.params.id,
@@ -165,7 +166,7 @@ export const postallItems = async (req: Request, res: Response) => {
   fichas.forEach((element) => {
     console.log(n);
     const params = {
-      TableName: "Humedales_web",  // me quede aqui, tengo que hacer un for each para recorrer el json y hacer un post por cada elemento 
+      TableName: "Humedales",  // me quede aqui, tengo que hacer un for each para recorrer el json y hacer un post por cada elemento 
       Item: {
         Index: {
           S: String(element.Serie),
