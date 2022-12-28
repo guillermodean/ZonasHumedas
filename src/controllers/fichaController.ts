@@ -3,6 +3,7 @@ import { ddb } from "../database";
 import * as fichas from '../../.Documentacion/ZHNC.json';
 
 
+
 const tableName = process.env.DYNAMODB_TABLE;
 
 
@@ -21,7 +22,8 @@ export const getItems =  async (req: Request, res: Response) => {
         console.log("Error", err.code);
       } else {
         console.log("Scanned :", data.Items);
-        res.json(data);
+        // var dataunmarshalled = unmarshall(data.Items);
+        res.json(data.Items);
       }
     });
   } catch (error) {

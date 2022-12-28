@@ -20,7 +20,7 @@ class FichaRoutes {
             this.router.put('/:id', updateItem);
             this.router.delete('/:id', deleteItem);
             this.router.put('/cargar', postallItems);
-            this.router.get('/item/:id', getItem);
+            this.router.get('/:id', getItem);
         }
     }
     const fichaRoutes = new FichaRoutes();
