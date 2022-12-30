@@ -14,7 +14,7 @@ class UsersRoutes {
         this.router.post('/',createUser);
         this.router.delete('/:id',deleteUser);
         this.router.put('/:id',updateUser);
-        this.router.get('/user/:id',getUser);
+        this.router.get('/:id',getUser);
     }
 }
 

@@ -17,7 +17,7 @@ export const getUsers = async (req: Request, res: Response) => {
         res.json("Error get Users").status(500);
       } else {
         console.log("Scanned :", data.Items);
-        res.json(data).status(200);
+        res.json(data.Items).status(200);
       }
     });
   } catch (error) {
