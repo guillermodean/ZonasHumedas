@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {getUsers, getUser, createUser, deleteUser, updateUser} from '../controllers/userController';
+import {getUsers, getUser, createUser, deleteUser, updateUser, getCount} from '../controllers/userController';
 
 
 class UsersRoutes {
@@ -14,7 +14,8 @@ class UsersRoutes {
         this.router.post('/',createUser);
         this.router.delete('/:id',deleteUser);
         this.router.put('/:id',updateUser);
-        this.router.get('/:id',getUser);
+        this.router.get('/user/:id',getUser);
+        this.router.get('/count',getCount)
     }
 }
 

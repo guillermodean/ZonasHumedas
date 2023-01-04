@@ -42,7 +42,7 @@ export const getUser = async (req: Request, res: Response) => {
                 console.log("Error", err);
                 res.json("Error get User").status(500);
             } else {
-                console.log("Item  : ", data.Item);
+                console.log("One item : ", data.Item);
                 res.json(data).status(200);
             }
         });
@@ -59,7 +59,7 @@ export const createUser = async (req: Request, res: Response) => {
         TableName: "Users",
         Item: {
             id: {
-                S: String(req.body.id) //
+                S: String(req.body.id) //   
             },
             name: {
                 S: String(req.body.name) //
@@ -78,8 +78,7 @@ export const createUser = async (req: Request, res: Response) => {
                 console.log("Error", err)
                 res.json("Error create User").status(500);
             } else {
-                console.log("Item created : ", data);
-                res.json(data).status(200);
+                res.send("user created").status(200);
             }
         });
     } catch (error) {
@@ -87,6 +86,28 @@ export const createUser = async (req: Request, res: Response) => {
     }
 }
 
+//get count of id from dynamoDB
+
+export const getCount = async (req: Request, res: Response) => {  
+    const params = {
+        TableName: "Users",
+        Select: "COUNT",
+    };
+    try {
+        const data = await ddb.scan(params,  (err, data) => {
+
+            if (err) {
+                console.log("Error", err);
+                res.json("Error get Count").status(500);
+            } else {
+                console.log("Count : ", data.ScannedCount);
+                res.json(data.Count).status(200);
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
 // delete user from dynamoDB
 
 export const deleteUser = async (req: Request, res: Response) => {
