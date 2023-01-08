@@ -1,5 +1,6 @@
 import {Request,Response} from 'express';
 import { ddb } from '../database';
+import * as bcrypt  from 'bcrypt';
 
 const tableName = process.env.DYNAMODB_TABLE;
 
@@ -52,23 +53,40 @@ export const getUser = async (req: Request, res: Response) => {
 
 };
 
+
+const hashPassword = (password: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(hash);
+        }
+      });
+    });
+  };
+
 // post user to dynamoDB
 
 export const createUser = async (req: Request, res: Response) => {
+    
+    const {id,email,password,name} = req.body
+    const hashedPassword = await hashPassword(password);
+
     const params = {
         TableName: "Users",
         Item: {
             id: {
-                S: String(req.body.id) //   
+                S: String(id) //   
             },
             name: {
-                S: String(req.body.name) //
+                S: String(name) //
             },
             email: {
-                S: String(req.body.email) //
+                S: String(email) //
             },
             password: {
-                S: String(req.body.password) //
+                S: String(hashedPassword) //
             },
         },
     };
