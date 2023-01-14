@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as bcrypt from 'bcrypt';
+import { login } from "../controllers/loginController";
 
  class LoginRoutes {
     public router: Router = Router();
@@ -7,11 +8,9 @@ import * as bcrypt from 'bcrypt';
         this.config();
     }
     config(): void {
-        this.router.get('/', (req, res) => {
-            res.send('login');
-        });
-    }
+        this.router.post('/', login);
 }
+ }
 
 const loginRoutes = new LoginRoutes();
 export default loginRoutes;
