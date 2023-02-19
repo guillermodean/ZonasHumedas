@@ -50,7 +50,7 @@ export const login = async (req:Request, res:Response) => {
 
                     // authentication successful
                     res.status(200).json({
-                        token,
+                        token,user
                     });
                 } else {
                     // authentication failed
