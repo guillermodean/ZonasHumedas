@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ddb } from "../database";
 import * as fichas from "../../.Documentacion/ZHNC.json";
 import jwt from "jsonwebtoken";
+import { Converter } from "aws-sdk/clients/dynamodb";
 
 const tableName = process.env.DYNAMODB_TABLE;
 const secretKey = process.env.JWT_SECRET;
@@ -11,15 +12,18 @@ const secretKey = process.env.JWT_SECRET;
 export const getItems = async (req: Request, res: Response) => {
   console.log("entrando a lo GETITEMS");
   const params = {
-    TableName: "Humedales",
+    TableName: "HumedalesNav",
   };
   try {
-    const data = await ddb.scan(params, function (err, data) {
+    const data = await ddb.scan(params, function (err, data:any) {
       if (err) {
         console.log("Error", err.code);
       } else {
+        // iterate through data.Items and unmarshall each item
+        for (let i = 0; i < data.Items.length; i++) {
+          data.Items[i] = Converter.unmarshall(data.Items[i]);
+        }
         console.log("Scanned :", data.Items);
-        // var dataunmarshalled = unmarshall(data.Items);
         res.json(data.Items);
       }
     });
@@ -32,21 +36,23 @@ export const getItems = async (req: Request, res: Response) => {
 
 export const getItem = async (req: Request, res: Response) => {
   const params = {
-    TableName: "Humedales",
+    TableName: "HumedalesNav",
     Key: {
       Serie: {
         S: String(req.params.id), //
       },
     },
   };
-  console.log(params);
+  // console.log(params);
   try {
-    const data = await ddb.getItem(params, function (err, data) {
+    const data = await ddb.getItem(params, function (err, data: any) {
       if (err) {
         console.log("Error", err);
       } else {
-        console.log("Item  : ", data.Item);
-        res.json(data);
+        
+        const convertedData = Converter.unmarshall(data.Item);
+        console.log("Item  : ", convertedData);
+        res.json(convertedData);
       }
     });
   } catch (error) {
@@ -55,30 +61,56 @@ export const getItem = async (req: Request, res: Response) => {
 };
 
 // post item to dynamoDB
-
 export const postItem = async (req: Request, res: Response) => {
   console.log("entrando a postItem");
   const params = {
-    TableName: "Humedales",
+    TableName: "HumedalesNav",
     Item: {
-      Index: {
+      ACUNID_antiguo: {
         S: req.body.index,
       },
-      Name: {
+      Enlace: {
         S: req.body.name,
       },
-      Description: {
+      Descripcion: {
         S: req.body.description,
       },
-      Image: {
+      Concatenacion: {
         S: req.body.image,
       },
-      Coordinates: {
+      Paraje: {
         S: req.body.coordinates,
       },
-      Type: {
+      Municipio: {
         S: req.body.type,
       },
+      Serie: {
+        S: req.body.serie,
+      },
+      Fauna: {
+        S: req.body.fauna,
+      },
+      Flora: {
+        S: req.body.flora,
+      },
+      Geologia: {
+        S: req.body.geologia,
+      },
+      Enlace_ebird: {
+        S: req.body.enlace_ebird,
+      },
+      X: {
+        S: req.body.x,
+      },
+      Y: {
+        S: req.body.y,
+      },
+      Status_de_conservacion: {
+        S: req.body.status_de_conservacion,
+      },
+      Recomendacion: {
+        S: req.body.recomendacion,
+      }
     },
   };
   await ddb.putItem(params, function (err, data) {
@@ -107,7 +139,7 @@ export const postItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   console.log("entrando a deleteItem");
   const params = {
-    TableName: "Humedales",
+    TableName: "HumedalesNav",
     Key: {
       Index: {
         S: req.params.id,
@@ -141,30 +173,32 @@ export const deleteItem = async (req: Request, res: Response) => {
 export const updateItem = async (req: Request, res: Response) => {
   console.log("entrando a updateItem");
   const params = {
-    TableName: "Humedales",
+    TableName: "HumedalesNav",
     Key: {
       Index: {
         S: req.params.id,
       },
     },
     UpdateExpression:
-      "set Name = :n, Description = :d, Image = :i, Coordinates = :c, Type = :t",
+      "set Acunid_antiguo = :n, Enlace = :d, Descripcion = :i, Concatenacion = :c, Paraje = :t, Municipio = :m, Serie = :s, Fauna = :f, Flora = :fl, Geologia = :g, Enlace_ebird = :ee, X = :x, Y = :y, Status_de_conservacion = :sc, Recomendacion = :r",
     ExpressionAttributeValues: {
-      ":n": {
-        S: req.body.name,
-      },
-      ":d": {
-        S: req.body.description,
-      },
-      ":i": {
-        S: req.body.image,
-      },
-      ":c": {
-        S: req.body.coordinates,
-      },
-      ":t": {
-        S: req.body.type,
-      },
+
+      "n": { S: req.body.Acunid_antiguo},
+      "d": { S: req.body.Enlace},
+      "i": { S: req.body.Descripcion},
+      "c": { S: req.body.Concatenacion},
+      "t": { S: req.body.Paraje},
+      "m": { S: req.body.Municipio},
+      "s": { S: req.body.Serie},
+      "f": { S: req.body.Fauna},
+      "fl": { S: req.body.Flora},
+      "g": { S: req.body.Geologia},
+      "ee": { S: req.body.Enlace_ebird},
+      "x": { S: req.body.X},
+      "y": { S: req.body.Y},
+      "sc": { S: req.body.Status_de_conservacion},
+      "r": { S: req.body.Recomendacion},
+
     },
     ReturnValues: "UPDATED_NEW",
   };
@@ -190,56 +224,3 @@ export const updateItem = async (req: Request, res: Response) => {
   });
 };
 
-// this function is to post all the items from the json file to dynamoDB but not used
-export const postallItems = async (req: Request, res: Response) => {
-  console.log(fichas);
-  // map json file and post one by one to dynamoDB
-  let n = 0;
-  fichas.forEach((element) => {
-    console.log(n);
-    const params = {
-      TableName: "Humedales", // me quede aqui, tengo que hacer un for each para recorrer el json y hacer un post por cada elemento
-      Item: {
-        Index: {
-          S: String(element.Serie),
-        },
-        ACUNID_antiguo: {
-          S: element["ACUNID antiguo"],
-        },
-        Cod_antiguo: {
-          S: element["Cod antiguo"],
-        },
-        Cod_adic: {
-          S: element["Cod adic"],
-        },
-        Municipio: {
-          S: element.Municipio,
-        },
-        Paraje: {
-          S: element.Paraje,
-        },
-        Rio: {
-          S: element.Río,
-        },
-        Concatenacion: {
-          S: element["Concatenación 2"],
-        },
-        CoordenadaXUTC: {
-          S: String(element.X),
-        },
-        CoordenadaYUTC: {
-          S: String(element.Y),
-        },
-      },
-    };
-
-    ddb.putItem(params, function (err, data) {
-      if (err) {
-        console.log("Error fatal", err);
-      } else {
-        console.log("Success", data);
-      }
-    });
-    n = n + 1;
-  });
-};
