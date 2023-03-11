@@ -10,7 +10,7 @@ const secretKey = process.env.JWT_SECRET;
 // get items from dynamoDB
 
 export const getItems = async (req: Request, res: Response) => {
-  console.log("entrando a lo GETITEMS");
+  console.log("getting items ...");
   const params = {
     TableName: "HumedalesNav",
   };
@@ -23,7 +23,7 @@ export const getItems = async (req: Request, res: Response) => {
         for (let i = 0; i < data.Items.length; i++) {
           data.Items[i] = Converter.unmarshall(data.Items[i]);
         }
-        console.log("Scanned :", data.Items);
+        //console.log("Scanned :", data.Items);
         res.json(data.Items);
       }
     });
@@ -51,7 +51,8 @@ export const getItem = async (req: Request, res: Response) => {
       } else {
         
         const convertedData = Converter.unmarshall(data.Item);
-        console.log("Item  : ", convertedData);
+        //console.log("Item  : ", convertedData);
+        console.log('getting item ...')
         res.json(convertedData);
       }
     });

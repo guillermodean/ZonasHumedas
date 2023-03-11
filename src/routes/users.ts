@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {getUsers, getUser, createUser, deleteUser, updateUser, getCount} from '../controllers/userController';
+import {getUsers, getUser, createUser, deleteUser, updateUser, getCount,getSeries} from '../controllers/userController';
 
 
 class UsersRoutes {
@@ -16,6 +16,7 @@ class UsersRoutes {
         this.router.put('/:id',updateUser);
         this.router.get('/user/:id',getUser);
         this.router.get('/count',getCount)
+        this.router.get('/series',getSeries)
     }
 }
 

@@ -1,6 +1,7 @@
 import {Request,Response} from 'express';
 import { ddb } from '../database';
 import * as bcrypt  from 'bcrypt';
+import { Converter } from 'aws-sdk/clients/dynamodb';
 
 const tableName = process.env.DYNAMODB_TABLE;
 
@@ -17,7 +18,7 @@ export const getUsers = async (req: Request, res: Response) => {
         console.log("Error", err.code)
         res.json("Error get Users").status(500);
       } else {
-        console.log("Scanned :", data.Items);
+        //console.log("Scanned :", data.Items);
         res.json(data.Items).status(200);
       }
     });
@@ -37,6 +38,7 @@ export const getUser = async (req: Request, res: Response) => {
             },
         },
     };
+    console.log(req.params.id)
     try {
         const data = await ddb.getItem(params, function (err, data) {
             if (err) {
@@ -126,6 +128,40 @@ export const getCount = async (req: Request, res: Response) => {
         console.log(error);
     }
 }
+
+// get all id number (series) from dynamoDB
+
+export const getSeries = async (req: Request, res: Response) => {
+    const params = {
+        TableName: "Users",
+        ProjectionExpression: "id",
+    };
+    try {
+        const data = await ddb.scan(params, function (err, data:any) {
+            if (err) {
+                console.log("Error", err);
+                res.json("Error get Series").status(500);
+            } else {
+                console.log("Scanned :", data.Items);
+                // find the highegest id number
+                let max = 0;
+                for (let i = 0; i < data.Items.length; i++) {
+                    data.Items[i] = Converter.unmarshall(data.Items[i]);
+                    if (data.Items[i].id > max) { 
+                        max = data.Items[i].id;
+                    }
+                }
+                res.json(max).status(200);
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
+
 // delete user from dynamoDB
 
 export const deleteUser = async (req: Request, res: Response) => {
@@ -159,19 +195,16 @@ export const updateUser = async (req: Request, res: Response) => {
         TableName: "Users",
         Key: {
             id: {
-                S: String(req.body.id) //
+                S: String(req.body.id) 
             },
         },
-        UpdateExpression: "set name = :n, email = :e, password = :p",
+        UpdateExpression: "set email = :e, password = :p ,  id = :i",
         ExpressionAttributeValues: {
-            ":n": {
-                S: String(req.body.name) //
-            },
             ":e": {
-                S: String(req.body.email) //
+                S: String(req.body.email) 
             },
             ":p": {
-                S: String(req.body.password) //
+                S: String(req.body.password) 
             },
         },
         ReturnValues: "UPDATED_NEW",
