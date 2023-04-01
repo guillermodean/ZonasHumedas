@@ -15,7 +15,7 @@ export const getItems = async (req: Request, res: Response) => {
     TableName: "HumedalesNav",
   };
   try {
-    const data = await ddb.scan(params, function (err, data:any) {
+    const data = await ddb.scan(params, function (err, data: any) {
       if (err) {
         console.log("Error", err.code);
       } else {
@@ -49,10 +49,9 @@ export const getItem = async (req: Request, res: Response) => {
       if (err) {
         console.log("Error", err);
       } else {
-        
         const convertedData = Converter.unmarshall(data.Item);
         //console.log("Item  : ", convertedData);
-        console.log('getting item ...')
+        console.log("getting item ...");
         res.json(convertedData);
       }
     });
@@ -62,6 +61,7 @@ export const getItem = async (req: Request, res: Response) => {
 };
 
 // post item to dynamoDB
+
 export const postItem = async (req: Request, res: Response) => {
   console.log("entrando a postItem");
   const params = {
@@ -111,7 +111,7 @@ export const postItem = async (req: Request, res: Response) => {
       },
       Recomendacion: {
         S: req.body.recomendacion,
-      }
+      },
     },
   };
   await ddb.putItem(params, function (err, data) {
@@ -172,34 +172,63 @@ export const deleteItem = async (req: Request, res: Response) => {
 // update item from dynamoDB
 
 export const updateItem = async (req: Request, res: Response) => {
-  console.log("entrando a updateItem");
+  console.log("entrando a updateItem ...");
+  let {    Acunid_antiguo,Enlace,Descripcion,Concatenacion,Paraje, Municipio, Serie, Fauna, Flora, Geologia, Enlace_ebird, X, Y, Status_de_conservacion, Recomendacion
+  } = req.body;
+  //add al constants to an array
+  const fields = [
+    Acunid_antiguo,Enlace,Descripcion,Concatenacion,Paraje,Municipio,Serie,Fauna,Flora,Geologia,Enlace_ebird,X,Y,Status_de_conservacion,Recomendacion];
+  //check if any of the constants is undefined and replace it with an empty string
+  for (let i = 0; i < fields.length; i++) {
+    if (fields[i] === undefined) {
+      fields[i] = "";
+    }
+  }
+  //destructure the array
+  [
+    Acunid_antiguo,Enlace,Descripcion,Concatenacion,Paraje,Municipio,Serie,Fauna,Flora,Geologia,Enlace_ebird,X,Y,Status_de_conservacion,Recomendacion
+  ] = fields;
+
   const params = {
     TableName: "HumedalesNav",
     Key: {
-      Index: {
+      Serie: {
         S: req.params.id,
       },
     },
     UpdateExpression:
-      "set Acunid_antiguo = :n, Enlace = :d, Descripcion = :i, Concatenacion = :c, Paraje = :t, Municipio = :m, Serie = :s, Fauna = :f, Flora = :fl, Geologia = :g, Enlace_ebird = :ee, X = :x, Y = :y, Status_de_conservacion = :sc, Recomendacion = :r",
+      "SET #n = :n, #p = :p, #des = :des, #co = :co, #t = :t, #m = :m, #fa = :fa, #fo = :fo, #ge = :ge, #en = :en, #x = :x, #y = :y, #sc = :sc, #r = :r",
+    ExpressionAttributeNames: {
+      "#n": "Acunid_antiguo",
+      "#p": "Enlace",
+      "#des": "Descripcion",
+      "#co": "Concatenacion",
+      "#t": "Paraje",
+      "#m": "Municipio",
+      "#fa": "Fauna",
+      "#fo": "Flora",
+      "#ge": "Geologia",
+      "#en": "Enlace_ebird",
+      "#x": "X",
+      "#y": "Y",
+      "#sc": "Status_de_conservacion",
+      "#r": "Recomendacion",
+    },
     ExpressionAttributeValues: {
-
-      "n": { S: req.body.Acunid_antiguo},
-      "d": { S: req.body.Enlace},
-      "i": { S: req.body.Descripcion},
-      "c": { S: req.body.Concatenacion},
-      "t": { S: req.body.Paraje},
-      "m": { S: req.body.Municipio},
-      "s": { S: req.body.Serie},
-      "f": { S: req.body.Fauna},
-      "fl": { S: req.body.Flora},
-      "g": { S: req.body.Geologia},
-      "ee": { S: req.body.Enlace_ebird},
-      "x": { S: req.body.X},
-      "y": { S: req.body.Y},
-      "sc": { S: req.body.Status_de_conservacion},
-      "r": { S: req.body.Recomendacion},
-
+      ":n": { S: Acunid_antiguo },
+      ":p": { S: Enlace },
+      ":des": { S: Descripcion },
+      ":co": { S: Concatenacion },
+      ":t": { S: Paraje },
+      ":m": { S: Municipio },
+      ":fa": { S: Fauna },
+      ":fo": { S: Flora },
+      ":ge": { S: Geologia },
+      ":en": { S: Enlace_ebird },
+      ":x": { S: X },
+      ":y": { S: Y },
+      ":sc": { S: Status_de_conservacion },
+      ":r": { S: Recomendacion },
     },
     ReturnValues: "UPDATED_NEW",
   };
@@ -208,20 +237,26 @@ export const updateItem = async (req: Request, res: Response) => {
       console.log("Error", err);
       res.status(500).json({ error: "Could not update item" });
     } else {
+      console.log('entrando a updateItem ...')
+      console.log('req.headers.authorization: ', req.headers)
       const auth_header = req.headers.authorization;
       if (auth_header) {
         const token = auth_header.split(" ")[1];
+        console.log('token: ', token)
         // verify token
         jwt.verify(token, String(secretKey), (err, user) => {
           if (err) {
-            return res.sendStatus(403);
+            console.log('err: ', err);
+            return res.sendStatus(403).json({ error: "Could not update item" });
           } else {
             console.log("Success", data);
             res.status(200).json({ message: "Item updated" });
           }
         });
       }
+      else {
+        console.log(auth_header)
+      }
     }
   });
 };
-
