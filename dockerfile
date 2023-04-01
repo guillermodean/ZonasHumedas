@@ -2,7 +2,7 @@
 
 # Use the official Node.js 14 image.
 # https://hub.docker.com/_/node
-FROM node:14    
+FROM node:14-alpine
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -12,6 +12,8 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
 # Copying this separately prevents re-running npm install on every code change.
 COPY package*.json ./
+
+COPY tsconfig.json ./
 
 # Install production dependencies.
 
@@ -27,6 +29,18 @@ RUN npm install -g typescript
 
 # Copy local code to the container image.
 COPY . .
+
+# Set environment variables
+ENV AWS_ACCESS_KEY_ID=AKIAYKPR5ELFMLFXU5WP
+ENV AWS_SECRET_ACCESS_KEY=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
+ENV AWS_REGION="eu-west-3"
+ENV DYNAMODB_TABLE="Humedales_Nav"
+ENV JWT_SECRET="esteEsElSecretoDeLaAplicacion51516584----"
+
+# run the ts build
+RUN npm install
+
+RUN tsc
 
 # Run the web service on container startup.
 CMD [ "npm", "start" ]
