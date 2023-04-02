@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { ddb } from "../database";
-import * as fichas from "../../.Documentacion/ZHNC.json";
 import jwt from "jsonwebtoken";
 import { Converter } from "aws-sdk/clients/dynamodb";
 

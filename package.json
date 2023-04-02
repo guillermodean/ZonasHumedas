@@ -5,8 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon build/src/index.js",
-    "start": "node build/src/index.js",
+    "dev": "nodemon build/index.js",
+    "start": "node build/index.js",
     "build": "tsc"
   },
   "repository": {

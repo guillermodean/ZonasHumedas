@@ -5,8 +5,7 @@
 FROM node:14-alpine
 
 # Create and change to the app directory.
-WORKDIR /usr/src/app
-
+WORKDIR /app
 # Copy application dependency manifests to the container image.
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
@@ -31,11 +30,11 @@ RUN npm install -g typescript
 COPY . .
 
 # Set environment variables
-ENV AWS_ACCESS_KEY_ID=AKIAYKPR5ELFMLFXU5WP
-ENV AWS_SECRET_ACCESS_KEY=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
+ENV AWS_ACCESS_KEY_ID=############
+ENV AWS_SECRET_ACCESS_KEY=############
 ENV AWS_REGION="eu-west-3"
 ENV DYNAMODB_TABLE="Humedales_Nav"
-ENV JWT_SECRET="esteEsElSecretoDeLaAplicacion51516584----"
+ENV JWT_SECRET="------------------------"
 
 # run the ts build
 RUN npm install
