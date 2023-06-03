@@ -36,6 +36,9 @@ ENV AWS_REGION="eu-west-3"
 ENV DYNAMODB_TABLE="Humedales_Nav"
 ENV JWT_SECRET="------------------------"
 
+# Share the logs folder as a volume
+VOLUME [ "/app/logs" ]
+
 # run the ts build
 RUN npm install
 

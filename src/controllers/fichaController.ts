@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ddb } from "../database";
 import jwt from "jsonwebtoken";
 import { Converter } from "aws-sdk/clients/dynamodb";
+import logger from "../logger";
 
 const tableName = process.env.DYNAMODB_TABLE;
 const secretKey = process.env.JWT_SECRET;
@@ -10,6 +11,8 @@ const secretKey = process.env.JWT_SECRET;
 
 export const getItems = async (req: Request, res: Response) => {
   console.log("getting items ...");
+  logger.info("getting items ...");
+
   const params = {
     TableName: "HumedalesNav",
   };
@@ -17,17 +20,18 @@ export const getItems = async (req: Request, res: Response) => {
     const data = await ddb.scan(params, function (err, data: any) {
       if (err) {
         console.log("Error", err.code);
+        logger.error("Error", err.code);
       } else {
         // iterate through data.Items and unmarshall each item
         for (let i = 0; i < data.Items.length; i++) {
           data.Items[i] = Converter.unmarshall(data.Items[i]);
         }
-        //console.log("Scanned :", data.Items);
         res.json(data.Items);
       }
     });
   } catch (error) {
     console.log(error);
+    logger.error(error);
   }
 };
 
@@ -38,24 +42,27 @@ export const getItem = async (req: Request, res: Response) => {
     TableName: "HumedalesNav",
     Key: {
       Serie: {
-        S: String(req.params.id), //
+        S: String(req.params.id), 
       },
     },
   };
-  // console.log(params);
   try {
     const data = await ddb.getItem(params, function (err, data: any) {
       if (err) {
         console.log("Error", err);
+        logger.error("Error", err);
       } else {
+        // iterate through data.Items and unmarshall each item
         const convertedData = Converter.unmarshall(data.Item);
-        //console.log("Item  : ", convertedData);
         console.log("getting item ...");
+        logger.info("getting item ...");
         res.json(convertedData);
       }
     });
   } catch (error) {
     console.log(error);
+
+    logger.error(error);
   }
 };
 
@@ -63,6 +70,7 @@ export const getItem = async (req: Request, res: Response) => {
 
 export const postItem = async (req: Request, res: Response) => {
   console.log("entrando a postItem");
+  logger.info("entrando a postItem");
   const params = {
     TableName: "HumedalesNav",
     Item: {
@@ -116,18 +124,20 @@ export const postItem = async (req: Request, res: Response) => {
   await ddb.putItem(params, function (err, data) {
     if (err) {
       console.log("Error", err);
+      logger.error("Error", err);
       res.status(500).json({ error: "Could not create item" });
     } else {
       const auth_header = req.headers.authorization;
-      if (auth_header) {
+      if (auth_header) { // verify token
         const token = auth_header.split(" ")[1];
         // verify token
-        jwt.verify(token, String(secretKey), (err, user) => {
+        jwt.verify(token, String(secretKey), (err, user) => { // if token is invalid, return 403
           if (err) {
             return res.sendStatus(403);
           }
-          console.log("Success", data);
-          res.status(200).json({ message: "Item created" });
+          console.log("item updated", data);
+          logger.info("item updated", data);
+          res.status(200).json({ message: "Item created" }); // if token is valid, return 200
         });
       }
     }
@@ -138,6 +148,7 @@ export const postItem = async (req: Request, res: Response) => {
 
 export const deleteItem = async (req: Request, res: Response) => {
   console.log("entrando a deleteItem");
+  logger.info("entrando a deleteItem");
   const params = {
     TableName: "HumedalesNav",
     Key: {
@@ -149,17 +160,19 @@ export const deleteItem = async (req: Request, res: Response) => {
   await ddb.deleteItem(params, function (err, data) {
     if (err) {
       console.log("Error", err);
+      logger.error("Error", err);
       res.status(500).json({ error: "Could not delete item" });
     } else {
       const auth_header = req.headers.authorization;
-      if (auth_header) {
+      if (auth_header) { // verify token
         const token = auth_header.split(" ")[1];
         // verify token
-        jwt.verify(token, String(secretKey), (err, user) => {
+        jwt.verify(token, String(secretKey), (err, user) => { // if token is invalid, return 403
           if (err) {
             return res.sendStatus(403);
           } else {
-            console.log("Success", data);
+            console.log("item deleted", data);
+            logger.info("item deleted", data);
             res.status(200).json({ message: "Item deleted" });
           }
         });
@@ -172,6 +185,7 @@ export const deleteItem = async (req: Request, res: Response) => {
 
 export const updateItem = async (req: Request, res: Response) => {
   console.log("entrando a updateItem ...");
+  logger.info("entrando a updateItem ...");
   let {    Acunid_antiguo,Enlace,Descripcion,Concatenacion,Paraje, Municipio, Serie, Fauna, Flora, Geologia, Enlace_ebird, X, Y, Status_de_conservacion, Recomendacion
   } = req.body;
   //add al constants to an array
@@ -234,27 +248,29 @@ export const updateItem = async (req: Request, res: Response) => {
   await ddb.updateItem(params, function (err, data) {
     if (err) {
       console.log("Error", err);
+      logger.error("Error", err);
       res.status(500).json({ error: "Could not update item" });
     } else {
       console.log('entrando a updateItem ...')
-      console.log('req.headers.authorization: ', req.headers)
+      logger.info("entrando a updateItem", data);
       const auth_header = req.headers.authorization;
-      if (auth_header) {
+      if (auth_header) {  // verify token
         const token = auth_header.split(" ")[1];
-        console.log('token: ', token)
-        // verify token
-        jwt.verify(token, String(secretKey), (err, user) => {
+        jwt.verify(token, String(secretKey), (err, user) => { // if token is invalid, return 403
           if (err) {
             console.log('err: ', err);
+            logger.error('err: ', err);
             return res.sendStatus(403).json({ error: "Could not update item" });
-          } else {
-            console.log("Success", data);
+          } else { // if token is valid, return 200
+            console.log("item udated", data);
+            logger.info("item updated", data);
             res.status(200).json({ message: "Item updated" });
           }
         });
       }
       else {
         console.log(auth_header)
+        logger.error(auth_header)
       }
     }
   });

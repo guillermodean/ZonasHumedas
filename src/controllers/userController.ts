@@ -2,6 +2,7 @@ import {Request,Response} from 'express';
 import { ddb } from '../database';
 import * as bcrypt  from 'bcrypt';
 import { Converter } from 'aws-sdk/clients/dynamodb';
+import logger from '../logger';
 
 const tableName = process.env.DYNAMODB_TABLE;
 
@@ -16,14 +17,16 @@ export const getUsers = async (req: Request, res: Response) => {
     const data = await ddb.scan(params, function (err, data) {
       if (err) {
         console.log("Error", err.code)
+        logger.error("Error", err.code);
         res.json("Error get Users").status(500);
       } else {
-        //console.log("Scanned :", data.Items);
+        logger.info("getting users ...");
         res.json(data.Items).status(200);
       }
     });
   } catch (error) {
     console.log(error);
+    logger.error(error);
   }
 }
 
@@ -38,27 +41,29 @@ export const getUser = async (req: Request, res: Response) => {
             },
         },
     };
-    console.log(req.params.id)
     try {
         const data = await ddb.getItem(params, function (err, data) {
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error get User").status(500);
             } else {
                 console.log("One item : ", data.Item);
+                logger.info("getting user ...");
                 res.json(data).status(200);
             }
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 
 };
 
 
-const hashPassword = (password: string): Promise<string> => {
+const hashPassword = (password: string): Promise<string> => { 
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 10, (err, hash) => {
+      bcrypt.hash(password, 10, (err, hash) => { 
         if (err) {
           reject(err);
         } else {
@@ -96,13 +101,17 @@ export const createUser = async (req: Request, res: Response) => {
         const data = await ddb.putItem(params, function (err, data) {
             if (err) {
                 console.log("Error", err)
+                logger.error("Error", err);
                 res.json("Error create User").status(500);
             } else {
+                console.log("user created", data);
+                logger.info("user created ...");
                 res.send("user created").status(200);
             }
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 }
 
@@ -118,14 +127,17 @@ export const getCount = async (req: Request, res: Response) => {
 
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error get Count").status(500);
             } else {
                 console.log("Count : ", data.ScannedCount);
+                logger.info("getting count ...");
                 res.json(data.Count).status(200);
             }
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 }
 
@@ -140,9 +152,11 @@ export const getSeries = async (req: Request, res: Response) => {
         const data = await ddb.scan(params, function (err, data:any) {
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error get Series").status(500);
             } else {
                 console.log("Scanned :", data.Items);
+                logger.info("getting series ...");
                 // find the highegest id number
                 let max = 0;
                 for (let i = 0; i < data.Items.length; i++) {
@@ -156,6 +170,7 @@ export const getSeries = async (req: Request, res: Response) => {
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 }
 
@@ -177,14 +192,17 @@ export const deleteUser = async (req: Request, res: Response) => {
         const data = await ddb.deleteItem(params, function (err, data) {
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error delete User").status(500);
             } else {
                 console.log("Item deleted : ", data);
+                logger.info("user deleted ...");
                 res.json(data).status(200);
             }
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 }
 
@@ -213,13 +231,17 @@ export const updateUser = async (req: Request, res: Response) => {
         const data = await ddb.updateItem(params, function (err, data) {
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error update User").status(500);
             } else {
                 console.log("Item updated : ", data);
+                logger.info("user updated ...");
                 res.json(data).status(200);
+
             }
         });
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 }

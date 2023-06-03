@@ -2,6 +2,7 @@ import {Request,Response} from 'express';
 import { ddb } from '../database';
 import * as bcrypt  from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import logger from '../logger';
 
 
 const tableName = process.env.DYNAMODB_TABLE;
@@ -9,13 +10,7 @@ const tableName = process.env.DYNAMODB_TABLE;
 const config = {
     secret: process.env.JWT_SECRET
 };
-console.log(config.secret)
-
 // get one user form dynamodb by his email
-
-
-
-
 //user login
 
 export const login = async (req:Request, res:Response) => {
@@ -36,20 +31,24 @@ export const login = async (req:Request, res:Response) => {
             // check if user exists
             if (err) {
                 console.log("Error", err);
+                logger.error("Error", err);
                 res.json("Error get User").status(500);
             } else {
                 
                 
                 const user = data.Items;
                 // check if user exists by checking if user is [] or not
-                if (user == undefined || user.length == 0) {
+                if (user == undefined || user.length == 0) { 
                     console.log("user not found", user);
+                    logger.error("user not found", user);
                     res.status(400).json({ message: 'User not found' });
                 }else{
                 // check if password is correct
                     console.log("checking password ...");
-                    if (user && bcrypt.compareSync(password, String(user[0].password.S))) {
+                    logger.info("checking password ...");
+                    if (user && bcrypt.compareSync(password, String(user[0].password.S))) { // compare password with hash
                         console.log("password correct");
+                        logger.info("password correct");
                         //generate token
 
                         const token = jwt.sign({ sub: user[0].id }, String(config.secret) || "9!!p9FC8h^$3mT", { expiresIn: '7d' });
@@ -60,6 +59,7 @@ export const login = async (req:Request, res:Response) => {
                         });
                     } else {
                         // authentication failed
+                        logger.error("password or email incorrect");
                         res.status(400).json({ message: 'Email or password is incorrect' });
                     }
                 }
@@ -68,6 +68,7 @@ export const login = async (req:Request, res:Response) => {
 
     } catch (error) {
         console.log(error);
+        logger.error(error);
     }
 
     
