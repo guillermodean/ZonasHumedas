@@ -75,22 +75,22 @@ export const postItem = async (req: Request, res: Response) => {
     TableName: "HumedalesNav",
     Item: {
       ACUNID_antiguo: {
-        S: req.body.index,
+        S: req.body.Acunid_antiguo,
       },
       Enlace: {
-        S: req.body.name,
+        S: req.body.enlace,
       },
       Descripcion: {
         S: req.body.description,
       },
       Concatenacion: {
-        S: req.body.image,
+        S: req.body.Concatenacion,
       },
       Paraje: {
-        S: req.body.coordinates,
+        S: req.body.Paraje,
       },
       Municipio: {
-        S: req.body.type,
+        S: req.body.Municipio,
       },
       Serie: {
         S: req.body.serie,

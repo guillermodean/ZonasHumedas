@@ -3,6 +3,7 @@ import { ddb } from '../database';
 import * as bcrypt  from 'bcrypt';
 import { Converter } from 'aws-sdk/clients/dynamodb';
 import logger from '../logger';
+import { createUserSchema } from '../models/UserSchema';
 
 const tableName = process.env.DYNAMODB_TABLE;
 
@@ -79,7 +80,11 @@ export const createUser = async (req: Request, res: Response) => {
     
     const {id,email,password,name} = req.body
     const hashedPassword = await hashPassword(password);
-
+    const { error, value } = createUserSchema.validate(email,password);
+    if (error) {
+        logger.error(error.details[0].message );
+        res.json(error.details[0].message ).status(500);
+    }
     const params = {
         TableName: "Users",
         Item: {
